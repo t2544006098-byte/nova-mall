@@ -1,0 +1,93 @@
+version: '3.8'
+
+networks:
+  nova-net:
+    driver: bridge
+
+services:
+
+  # ==================== MySQL ====================
+  mysql:
+    image: mysql:8.0
+    container_name: nova-mysql
+    restart: unless-stopped
+    networks:
+      - nova-net
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: nova123456
+      MYSQL_CHARACTER_SET_SERVER: utf8mb4
+      MYSQL_COLLATION_SERVER: utf8mb4_unicode_ci
+    volumes:
+      - nova-mysql-data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d   # 初始化SQL自动执行
+    command:
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+
+  # ==================== Redis ====================
+  redis:
+    image: redis:7.2
+    container_name: nova-redis
+    restart: unless-stopped
+    networks:
+      - nova-net
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass nova123456 --appendonly yes
+    volumes:
+      - nova-redis-data:/data
+
+  # ==================== Nacos ====================
+  nacos:
+    image: nacos/nacos-server:v2.3.2
+    container_name: nova-nacos
+    restart: unless-stopped
+    networks:
+      - nova-net
+    ports:
+      - "8848:8848"
+      - "9848:9848"
+    environment:
+      MODE: standalone
+      SPRING_DATASOURCE_PLATFORM: mysql
+      MYSQL_SERVICE_HOST: mysql
+      MYSQL_SERVICE_PORT: 3306
+      MYSQL_SERVICE_DB_NAME: nacos_config
+      MYSQL_SERVICE_USER: root
+      MYSQL_SERVICE_PASSWORD: nova123456
+      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true
+      NACOS_AUTH_ENABLE: "true"
+      NACOS_AUTH_TOKEN: bm92YS1tYWxsLW5hY29zLWF1dGgtc2VjcmV0LWtleSE=
+      NACOS_AUTH_IDENTITY_KEY: nacos
+      NACOS_AUTH_IDENTITY_VALUE: nacos
+      JVM_XMS: 256m
+      JVM_XMX: 256m
+    depends_on:
+      - mysql
+    volumes:
+      - nova-nacos-logs:/home/nacos/logs
+
+  # ==================== RabbitMQ ====================
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: nova-rabbitmq
+    restart: unless-stopped
+    networks:
+      - nova-net
+    ports:
+      - "5672:5672"    # 服务端口
+      - "15672:15672"  # 管理界面端口
+    environment:
+      RABBITMQ_DEFAULT_USER: nova
+      RABBITMQ_DEFAULT_PASS: nova123456
+    volumes:
+      - nova-rabbitmq-data:/var/lib/rabbitmq
+
+volumes:
+  nova-mysql-data:
+  nova-redis-data:
+  nova-nacos-logs:
+  nova-rabbitmq-data:

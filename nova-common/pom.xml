@@ -13,4 +13,18 @@
     <artifactId>nova-common</artifactId>
     <name>nova-common</name>
     <description>公共模块 - 通用工具类、实体、常量、统一响应</description>
+
+    <dependencies>
+        <!-- Web 开发核心依赖,用来处理处理 HTTP 请求 -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- 工具类库 -->
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-all</artifactId>
+        </dependency>
+    </dependencies>
 </project>
