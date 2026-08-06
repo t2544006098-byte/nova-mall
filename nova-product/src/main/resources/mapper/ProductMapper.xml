@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.novamall.product.mapper.ProductMapper">
+    <insert id="createProduct" useGeneratedKeys="true" keyProperty="id">
+        insert into product (name, description, price, stock, category_id, brand, main_image, status, create_time, update_time)
+        values (#{name}, #{description}, #{price}, #{stock}, #{categoryId}, #{brand}, #{mainImage}, #{status}, #{createTime}, #{updateTime})
+    </insert>
+
+    <select id="selectAllProduct" resultType="com.novamall.product.entity.Product">
+        select * from product where valid = '1'
+    </select>
+
+    <select id="selectProductByName" parameterType="String" resultType="com.novamall.product.entity.Product">
+        select * from product where name like concat('%',#{productName},'%') and valid = '1'
+    </select>
+
+    <select id="selectProductListByIdList" parameterType="java.util.List" resultType="com.novamall.product.entity.Product" >
+        select * from product where valid = '1'
+        <if test="list != null and list.size() > 0">
+            and id in
+            <foreach collection="list" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectProductById" parameterType="Long" resultType="com.novamall.product.entity.Product">
+        select * from product where valid = '1' and id = #{id}
+    </select>
+
+    <update id="deleteProductById" parameterType="Long">
+        update product set valid = '0' where id = #{productId}
+    </update>
+
+    <update id="deleteProductListByIdList" parameterType="java.util.List">
+        update product set valid = '0'
+        <if test="list != null and list.size() > 0">
+            where id in
+            <foreach collection="list" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="updateProduct" parameterType="com.novamall.product.entity.Product">
+        update product set status = #{status}, name = #{name}, description = #{description}, price = #{price},
+        stock = #{stock}, category_id = #{categoryId}, brand = #{brand}, main_image = #{mainImage}, update_time = #{updateTime}
+        where id = #{id}
+    </update>
+</mapper>

@@ -31,10 +31,10 @@ public class UserServiceImpl implements UserService {
 
 
     @Override
-    public Result<Long> register(RegisterRequest request) {
+    public Result<User> register(RegisterRequest request) {
         User exist = userMapper.findByUsername(request.getUsername());
         if (exist != null) {
-            return Result.fail(ResultEnum.USER_EXISTS.toString());
+            return Result.fail(ResultEnum.USER_EXISTS.getCode(), ResultEnum.USER_EXISTS.getMessage(), exist);
         }
         User user = new User();
         user.setUsername(request.getUsername());
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
         user.setCreateTime(LocalDateTime.now());
         user.setUpdateTime(LocalDateTime.now());
         userMapper.insert(user);
-        return Result.success(user.getId());
+        return Result.success(user);
     }
 
     @Override
@@ -54,13 +54,13 @@ public class UserServiceImpl implements UserService {
         User user = userMapper.findByUsername(request.getUsername());
         String md5Password = DigestUtils.md5DigestAsHex(request.getPassword().getBytes());
         if (user == null){
-            return Result.fail(ResultEnum.LOGIN_ERROR.toString());
+            return Result.fail(ResultEnum.LOGIN_ERROR.getCode(), ResultEnum.LOGIN_ERROR.getMessage());
         }
         if (!user.getPassword().equals(request.getPassword())){
-            return Result.fail(ResultEnum.LOGIN_ERROR.toString());
+            return Result.fail(ResultEnum.LOGIN_ERROR.getCode(), ResultEnum.LOGIN_ERROR.getMessage());
         }
         if (!user.getStatus().equals(YES)){
-            return Result.fail(ResultEnum.USER_DISABLED.toString());
+            return Result.fail(ResultEnum.USER_DISABLED.getCode(), ResultEnum.USER_DISABLED.getMessage());
         }
         String token = jwtUtil.generateToken(request.getUsername());
         return Result.success(token);

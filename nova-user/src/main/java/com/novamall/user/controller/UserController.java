@@ -4,6 +4,7 @@ package com.novamall.user.controller;
 import com.novamall.common.Result;
 import com.novamall.user.dto.LoginRequest;
 import com.novamall.user.dto.RegisterRequest;
+import com.novamall.user.entity.User;
 import com.novamall.user.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class UserController {
     }
 
     @RequestMapping("/register")
-    public Result<Long> register(@Valid @RequestBody RegisterRequest request){
+    public Result<User> register(@Valid @RequestBody RegisterRequest request){
         return  userService.register(request);
     }
 

@@ -18,3 +18,7 @@ spring:
           uri: lb://nova-user
           predicates:
             - Path=/user/**
+        - id: nova-product-route
+          uri: lb://nova-product
+          predicates:
+            - Path=/product/**
