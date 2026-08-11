@@ -14,11 +14,35 @@ spring:
         locator:
           enabled: true  # 自动根据 Nacos 服务名创建路由（如 /nova-user/**）
       routes:
-        - id: nova-user-route
-          uri: lb://nova-user
+        - id: nova-user-route #Gateway 路由的唯一标识，Sentinel 限流时使用
+          uri: lb://nova-user #Nacos 中注册的目标服务名
           predicates:
-            - Path=/user/**
+            - Path=/user/** #触发这条路由的请求路径
         - id: nova-product-route
           uri: lb://nova-product
           predicates:
             - Path=/product/**
+    #Sentinel流量控制
+    sentinel:
+      eager: true  #Gateway 启动时立即注册，不必等第一次请求
+      transport:
+        dashboard: localhost:8858 #Sentinel 控制台地址
+        port: 8719  #Dashboard 与 Gateway 客户端通信端口
+      filter:
+        enabled: false  #关闭普通 Web URL 资源统计，使用 Gateway 专用的路由资源
+      datasource:
+        gateway-flow: #gateway-flow 只是数据源名称，可以自定义
+          nacos: #默认 public 命名空间不需要配置 namespace
+            server-addr: localhost:8848
+            username: nacos
+            password: nacos
+            data-id: nova-gateway-gw-flow-rules #data-id 和 group-id 必须与 Nacos 中完全一致
+            group-id: SENTINEL_GROUP
+            data-type: json
+            rule-type: gw-flow #rule-type 必须是 gw-flow，不能写成 flow
+      scg:
+        fallback:
+          mode: response
+          response-status: 429
+          content-type: application/json;charset=UTF-8
+          response-body: '{"code":429,"message":"请求过于频繁，请稍后再试","data":null}'

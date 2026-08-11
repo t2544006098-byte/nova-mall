@@ -90,6 +90,16 @@
             <artifactId>pagehelper-spring-boot-starter</artifactId>
             <version>${pageHelper.version}</version> <!-- 建议使用 1.4.7 及以上 -->
         </dependency>
+        <!-- OpenFeign 服务间调用 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <!-- OpenFeign 通过服务名调用时需要 -->
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
